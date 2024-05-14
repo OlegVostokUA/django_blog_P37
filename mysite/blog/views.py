@@ -1,10 +1,19 @@
-from django.shortcuts import render, get_object_or_404
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Post
-from .forms import CommentForm
+from .forms import CommentForm, UserRegisterForm
+from taggit.models import Tag
+from django.contrib.auth.decorators import login_required
 
-def post_list(request):
+
+def post_list(request, tag_slug=None):
     posts = Post.objects.all()
+    tag = None
+
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        posts = posts.filter(tags__in=[tag])
 
     paginator = Paginator(posts, 3)
     page = request.GET.get('page')
@@ -17,7 +26,8 @@ def post_list(request):
         posts = paginator.page(paginator.num_pages)
 
     return render(request, 'blog/post/list.html', {'posts': posts,
-                                                   'page': page})
+                                                   'page': page,
+                                                   'tag': tag})
 
 
 def post_detail(request, post_slug, year, month, day):
@@ -42,3 +52,21 @@ def post_detail(request, post_slug, year, month, day):
     return render(request, 'blog/post/detail.html', {'post': post,
                                                      'comments': comments,
                                                      'comment_form': comment_form})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Створено аккаунт {username}')
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'users/register.html', {'form': form})
+
+
+@login_required
+def profile(request):
+    return render(request, 'users/profile.html')
