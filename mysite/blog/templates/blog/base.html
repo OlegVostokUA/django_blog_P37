@@ -22,6 +22,7 @@
             <!-- Navbar-->
             {% if user.is_authenticated %}
             	<a class="navbar-brand ps-3" href="{% url 'profile' %}">Профіль</a>
+                <a class="navbar-brand ps-3" href="{% url 'blog:post_create' %}">Новий пост</a>
             	<a class="navbar-brand ps-3" href="{% url 'logout_confirm' %}">Вихід</a> <!--logout_confirm-->
 
           	{% else %}
