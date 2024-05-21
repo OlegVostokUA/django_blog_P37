@@ -70,3 +70,7 @@ def register(request):
 @login_required
 def profile(request):
     return render(request, 'users/profile.html')
+
+
+def logout_confirm(request):
+    return render(request, 'users/logout_confirm.html')
